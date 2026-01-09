@@ -1,22 +1,27 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import I18n from "I18n";
 
 const STORAGE_KEY_ANON = "discourse_tour_anonymous_completed";
 const STORAGE_KEY_LOGGED_IN = "discourse_tour_logged_in_completed";
 
-// Default steps if no config provided
+// Default step configs if no JSON provided (keys reference locale files)
 const DEFAULT_STEPS_ANONYMOUS = [
-  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users.", side: "bottom" },
-  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse and join conversations.", side: "top" },
-  { selector: ".sign-up-button, .btn-primary.sign-up", title: "Join Us", description: "Create an account to participate.", side: "bottom" },
+  { selector: "#search-button", key: "anon_search", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", key: "anon_topics", side: "top" },
+  { selector: ".sign-up-button, .btn-primary.sign-up", key: "anon_signup", side: "bottom" },
 ];
 
 const DEFAULT_STEPS_LOGGED_IN = [
-  { selector: ".header-sidebar-toggle, #toggle-hamburger-menu", title: "Navigation", description: "Browse categories and tags.", side: "bottom" },
-  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users.", side: "bottom" },
-  { selector: ".header-dropdown-toggle.current-user", title: "Your Profile", description: "Notifications, messages, and settings.", side: "bottom" },
-  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse and join conversations.", side: "top" },
-  { selector: "#create-topic", title: "New Topic", description: "Start a new discussion.", side: "top" },
+  { selector: ".header-sidebar-toggle, #toggle-hamburger-menu", key: "user_navigation", side: "bottom" },
+  { selector: "#search-button", key: "user_search", side: "bottom" },
+  { selector: ".header-dropdown-toggle.current-user", key: "user_profile", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", key: "user_topics", side: "top" },
+  { selector: "#create-topic", key: "user_newtopic", side: "top" },
 ];
+
+function t(key) {
+  return I18n.t(`js.onboarding_tour.${key}`);
+}
 
 function getStorageKey(isLoggedIn) {
   return isLoggedIn ? STORAGE_KEY_LOGGED_IN : STORAGE_KEY_ANON;
@@ -58,7 +63,6 @@ function findElement(selector) {
   if (!selector || selector.trim() === "") {
     return null;
   }
-  // Handle comma-separated selectors (try each one)
   const selectors = selector.split(",").map(s => s.trim());
   for (const sel of selectors) {
     const el = document.querySelector(sel);
@@ -67,30 +71,31 @@ function findElement(selector) {
   return null;
 }
 
-function buildTourSteps(stepsConfig, welcomeTitle, welcomeDesc, doneTitle, doneDesc) {
+function buildTourSteps(stepsConfig) {
   const steps = [];
 
-  // Welcome step (no element) - only if title or description provided
-  if (welcomeTitle || welcomeDesc) {
-    steps.push({
-      popover: {
-        title: welcomeTitle || "Welcome!",
-        description: welcomeDesc || "",
-      },
-    });
-  }
+  // Welcome step (no element)
+  steps.push({
+    popover: {
+      title: t("welcome_title"),
+      description: t("welcome_description"),
+    },
+  });
 
   // Build steps from config
   for (const step of stepsConfig) {
-    // Check if this is a centered step (no selector)
     const isCenteredStep = !step.selector || step.selector.trim() === "";
+
+    // Get title and description from locale using the key
+    const title = step.key ? t(`${step.key}_title`) : (step.title || "");
+    const description = step.key ? t(`${step.key}_description`) : (step.description || "");
 
     if (isCenteredStep) {
       // Centered modal step (no element)
       steps.push({
         popover: {
-          title: step.title || "",
-          description: step.description || "",
+          title: title,
+          description: description,
         },
       });
     } else {
@@ -100,52 +105,36 @@ function buildTourSteps(stepsConfig, welcomeTitle, welcomeDesc, doneTitle, doneD
         steps.push({
           element: element,
           popover: {
-            title: step.title || "Feature",
-            description: step.description || "",
+            title: title,
+            description: description,
             side: step.side || "bottom",
             align: step.align || "center",
           },
         });
       } else {
-        console.log(`[Onboarding Tour] Element not found for selector: ${step.selector}`);
+        console.log(`[Onboarding Tour] Element not found: ${step.selector}`);
       }
     }
   }
 
-  // Done step (no element) - only if title or description provided
-  if (doneTitle || doneDesc) {
-    steps.push({
-      popover: {
-        title: doneTitle || "Done!",
-        description: doneDesc || "",
-      },
-    });
-  }
+  // Done step (no element)
+  steps.push({
+    popover: {
+      title: t("done_title"),
+      description: t("done_description"),
+    },
+  });
 
   return steps;
 }
 
-function startTour(stepsConfig, isLoggedIn, themeSettings) {
+function startTour(stepsConfig, isLoggedIn) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
 
-  // Get welcome/done text based on user type
-  const welcomeTitle = isLoggedIn
-    ? themeSettings.welcome_title_logged_in
-    : themeSettings.welcome_title_anonymous;
-  const welcomeDesc = isLoggedIn
-    ? themeSettings.welcome_description_logged_in
-    : themeSettings.welcome_description_anonymous;
-  const doneTitle = isLoggedIn
-    ? themeSettings.done_title_logged_in
-    : themeSettings.done_title_anonymous;
-  const doneDesc = isLoggedIn
-    ? themeSettings.done_description_logged_in
-    : themeSettings.done_description_anonymous;
-
-  const steps = buildTourSteps(stepsConfig, welcomeTitle, welcomeDesc, doneTitle, doneDesc);
+  const steps = buildTourSteps(stepsConfig);
   console.log("[Onboarding Tour] Starting tour with steps:", steps);
 
   if (steps.length === 0) {
@@ -161,9 +150,9 @@ function startTour(stepsConfig, isLoggedIn, themeSettings) {
     stagePadding: 0,
     stageRadius: 0,
     popoverOffset: 16,
-    nextBtnText: "Next",
-    prevBtnText: "Back",
-    doneBtnText: "Done",
+    nextBtnText: t("next_button"),
+    prevBtnText: t("prev_button"),
+    doneBtnText: t("done_button"),
     onDestroyStarted: () => {
       markTourCompleted(isLoggedIn);
       driverObj.destroy();
@@ -185,7 +174,6 @@ function shouldShowTour(api, themeSettings, isLoggedIn) {
     return false;
   }
 
-  // Trust level check only applies to logged-in users
   if (isLoggedIn) {
     const currentUser = api.getCurrentUser();
     if (currentUser) {
@@ -219,14 +207,6 @@ function getThemeSettings() {
     target_trust_level: settings.target_trust_level ?? 4,
     tour_steps_anonymous: settings.tour_steps_anonymous || "[]",
     tour_steps_logged_in: settings.tour_steps_logged_in || "[]",
-    welcome_title_anonymous: settings.welcome_title_anonymous || "Welcome!",
-    welcome_description_anonymous: settings.welcome_description_anonymous || "Let us show you around.",
-    done_title_anonymous: settings.done_title_anonymous || "You're All Set!",
-    done_description_anonymous: settings.done_description_anonymous || "Create an account to join!",
-    welcome_title_logged_in: settings.welcome_title_logged_in || "Welcome!",
-    welcome_description_logged_in: settings.welcome_description_logged_in || "Let us show you around.",
-    done_title_logged_in: settings.done_title_logged_in || "You're All Set!",
-    done_description_logged_in: settings.done_description_logged_in || "Explore and enjoy!",
   };
 }
 
@@ -242,7 +222,6 @@ export default {
 
       console.log("[Onboarding Tour] Initializing. Logged in:", isLoggedIn);
 
-      // Parse the appropriate steps config
       const stepsConfig = isLoggedIn
         ? parseStepsConfig(themeSettings.tour_steps_logged_in, DEFAULT_STEPS_LOGGED_IN)
         : parseStepsConfig(themeSettings.tour_steps_anonymous, DEFAULT_STEPS_ANONYMOUS);
@@ -266,7 +245,7 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour(stepsConfig, isLoggedIn, themeSettings);
+          startTour(stepsConfig, isLoggedIn);
         }, themeSettings.tour_delay_ms);
       });
     });

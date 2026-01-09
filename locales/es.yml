@@ -1,0 +1,39 @@
+es:
+  js:
+    onboarding_tour:
+      # Welcome & Done (automatic first/last steps)
+      welcome_title: "¡Bienvenido!"
+      welcome_description: "Permítenos mostrarte el sitio. Este breve recorrido te ayudará a comenzar."
+      done_title: "¡Listo!"
+      done_description: "Eso es lo básico. ¡Explora y disfruta!"
+
+      # Navigation buttons
+      next_button: "Siguiente"
+      prev_button: "Atrás"
+      done_button: "Listo"
+
+      # Anonymous user steps
+      anon_search_title: "Buscar"
+      anon_search_description: "Encuentra temas, publicaciones y usuarios en el foro."
+      anon_topics_title: "Discusiones"
+      anon_topics_description: "Explora conversaciones y descubre de qué habla la comunidad."
+      anon_signup_title: "Únete"
+      anon_signup_description: "Crea una cuenta para participar en las discusiones."
+      anon_login_title: "Iniciar Sesión"
+      anon_login_description: "¿Ya tienes una cuenta? Inicia sesión aquí."
+      anon_categories_title: "Categorías"
+      anon_categories_description: "Explora temas organizados por categoría."
+
+      # Logged-in user steps
+      user_navigation_title: "Navegación"
+      user_navigation_description: "Explora categorías, etiquetas y encuentra tu camino."
+      user_search_title: "Buscar"
+      user_search_description: "Encuentra temas, publicaciones y usuarios en el foro."
+      user_profile_title: "Tu Perfil"
+      user_profile_description: "Accede a notificaciones, mensajes, marcadores y configuración."
+      user_topics_title: "Discusiones"
+      user_topics_description: "Explora y únete a conversaciones con la comunidad."
+      user_newtopic_title: "Nuevo Tema"
+      user_newtopic_description: "Inicia una nueva discusión y comparte tus ideas."
+      user_categories_title: "Categorías"
+      user_categories_description: "Explora temas organizados por categoría."

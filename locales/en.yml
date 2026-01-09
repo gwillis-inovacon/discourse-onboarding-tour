@@ -1,36 +1,39 @@
 en:
-  theme_metadata:
-    description: "An onboarding tour powered by Driver.js to help new users learn the forum"
-    settings:
-      tour_enabled: "Enable onboarding tour"
-      tour_delay_ms: "Tour start delay (ms)"
-      target_trust_level: "Max trust level for tour"
-      show_replay_button: "Show replay tour button"
-
   js:
     onboarding_tour:
-      welcome_title: "Welcome to Our Community!"
+      # Welcome & Done (automatic first/last steps)
+      welcome_title: "Welcome!"
       welcome_description: "Let us show you around. This quick tour will help you get started."
-
-      navigation_title: "Navigation Menu"
-      navigation_description: "Click here to browse categories, tags, and find your way around the forum."
-
-      search_title: "Search"
-      search_description: "Looking for something? Use search to find topics, posts, and users."
-
-      user_menu_title: "Your Profile"
-      user_menu_description: "Access your notifications, messages, bookmarks, and profile settings here."
-
-      topic_list_title: "Topic List"
-      topic_list_description: "Browse discussions here. Click any topic title to read and join the conversation."
-
-      new_topic_title: "Start a Discussion"
-      new_topic_description: "Ready to share? Click here to create a new topic and start a conversation."
-
       done_title: "You're All Set!"
-      done_description: "That's the basics! Explore and don't hesitate to ask if you need help."
+      done_description: "That's the basics. Explore and enjoy!"
 
+      # Navigation buttons
       next_button: "Next"
       prev_button: "Back"
       done_button: "Done"
-      replay_button: "Tour"
+
+      # Anonymous user steps
+      anon_search_title: "Search"
+      anon_search_description: "Find topics, posts, and users across the forum."
+      anon_topics_title: "Discussions"
+      anon_topics_description: "Browse conversations and see what the community is talking about."
+      anon_signup_title: "Join Us"
+      anon_signup_description: "Create an account to participate in discussions."
+      anon_login_title: "Log In"
+      anon_login_description: "Already have an account? Log in here."
+      anon_categories_title: "Categories"
+      anon_categories_description: "Browse topics organized by category."
+
+      # Logged-in user steps
+      user_navigation_title: "Navigation"
+      user_navigation_description: "Browse categories, tags, and find your way around."
+      user_search_title: "Search"
+      user_search_description: "Find topics, posts, and users across the forum."
+      user_profile_title: "Your Profile"
+      user_profile_description: "Access notifications, messages, bookmarks, and settings."
+      user_topics_title: "Discussions"
+      user_topics_description: "Browse and join conversations with the community."
+      user_newtopic_title: "New Topic"
+      user_newtopic_description: "Start a new discussion and share your thoughts."
+      user_categories_title: "Categories"
+      user_categories_description: "Browse topics organized by category."

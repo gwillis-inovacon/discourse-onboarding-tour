@@ -17,54 +17,14 @@ target_trust_level:
   max: 4
   description: "Only show tour to logged-in users at or below this trust level"
 
-welcome_title_anonymous:
-  type: string
-  default: "Welcome!"
-  description: "Welcome step title for anonymous users"
-
-welcome_description_anonymous:
-  type: string
-  default: "Let us show you around. This quick tour will help you get started."
-  description: "Welcome step description for anonymous users"
-
-done_title_anonymous:
-  type: string
-  default: "You're All Set!"
-  description: "Final step title for anonymous users"
-
-done_description_anonymous:
-  type: string
-  default: "That's the basics. Create an account to join the conversation!"
-  description: "Final step description for anonymous users"
-
 tour_steps_anonymous:
   type: string
   default: "[]"
   textarea: true
-  description: "Tour steps for anonymous (not logged in) users - paste JSON from Tour Editor"
-
-welcome_title_logged_in:
-  type: string
-  default: "Welcome!"
-  description: "Welcome step title for logged-in users"
-
-welcome_description_logged_in:
-  type: string
-  default: "Let us show you around. This quick tour will help you get started."
-  description: "Welcome step description for logged-in users"
-
-done_title_logged_in:
-  type: string
-  default: "You're All Set!"
-  description: "Final step title for logged-in users"
-
-done_description_logged_in:
-  type: string
-  default: "That's the basics. Explore and enjoy!"
-  description: "Final step description for logged-in users"
+  description: "Tour steps for anonymous users - JSON with selector, key, side, align fields"
 
 tour_steps_logged_in:
   type: string
   default: "[]"
   textarea: true
-  description: "Tour steps for logged-in users - paste JSON from Tour Editor"
+  description: "Tour steps for logged-in users - JSON with selector, key, side, align fields"
