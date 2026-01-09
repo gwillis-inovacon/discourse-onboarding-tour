@@ -1,0 +1,23 @@
+tour_enabled:
+  type: bool
+  default: true
+  description: "Enable the onboarding tour for new users"
+
+tour_delay_ms:
+  type: integer
+  default: 1500
+  min: 500
+  max: 5000
+  description: "Delay in milliseconds before the tour starts (allows page to fully load)"
+
+target_trust_level:
+  type: integer
+  default: 0
+  min: 0
+  max: 4
+  description: "Only show tour to users at or below this trust level (0 = new users only)"
+
+show_replay_button:
+  type: bool
+  default: false
+  description: "Show a button in the header to replay the tour"
