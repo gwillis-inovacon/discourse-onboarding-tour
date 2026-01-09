@@ -57,8 +57,12 @@ function getStorageKey(isLoggedIn) {
 
 function hasCompletedTour(isLoggedIn) {
   try {
-    return localStorage.getItem(getStorageKey(isLoggedIn)) === "true";
+    const key = getStorageKey(isLoggedIn);
+    const value = localStorage.getItem(key);
+    console.log(`[Onboarding Tour] Checking completion: key=${key}, value=${value}, isCompleted=${value === "true"}`);
+    return value === "true";
   } catch (e) {
+    console.log("[Onboarding Tour] localStorage error:", e);
     return false;
   }
 }
