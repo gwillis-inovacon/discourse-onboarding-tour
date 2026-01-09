@@ -2,33 +2,26 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 
 const STORAGE_KEY = "discourse_onboarding_tour_completed";
 
-function getI18n(key) {
-  if (typeof I18n !== "undefined" && I18n.t) {
-    return I18n.t(`js.onboarding_tour.${key}`);
-  }
-  // Fallback text
-  const fallbacks = {
-    welcome_title: "Welcome to Our Community!",
-    welcome_description: "Let us show you around. This quick tour will help you get started.",
-    navigation_title: "Navigation Menu",
-    navigation_description: "Click here to browse categories, tags, and find your way around the forum.",
-    search_title: "Search",
-    search_description: "Looking for something? Use search to find topics, posts, and users.",
-    user_menu_title: "Your Profile",
-    user_menu_description: "Access your notifications, messages, bookmarks, and profile settings here.",
-    topic_list_title: "Topic List",
-    topic_list_description: "Browse discussions here. Click any topic title to read and join the conversation.",
-    new_topic_title: "Start a Discussion",
-    new_topic_description: "Ready to share? Click here to create a new topic and start a conversation.",
-    done_title: "You're All Set!",
-    done_description: "That's the basics! Explore and don't hesitate to ask if you need help.",
-    next_button: "Next",
-    prev_button: "Back",
-    done_button: "Done",
-    replay_button: "Tour",
-  };
-  return fallbacks[key] || key;
-}
+// Hardcoded strings (more reliable than I18n for theme components)
+const TEXT = {
+  welcome_title: "Welcome to Our Community!",
+  welcome_description: "Let us show you around. This quick tour will help you get started.",
+  navigation_title: "Navigation Menu",
+  navigation_description: "Click here to browse categories, tags, and find your way around the forum.",
+  search_title: "Search",
+  search_description: "Looking for something? Use search to find topics, posts, and users.",
+  user_menu_title: "Your Profile",
+  user_menu_description: "Access your notifications, messages, bookmarks, and profile settings here.",
+  topic_list_title: "Topic List",
+  topic_list_description: "Browse discussions here. Click any topic title to read and join the conversation.",
+  new_topic_title: "Start a Discussion",
+  new_topic_description: "Ready to share? Click here to create a new topic and start a conversation.",
+  done_title: "You're All Set!",
+  done_description: "That's the basics! Explore and don't hesitate to ask if you need help.",
+  next_button: "Next",
+  prev_button: "Back",
+  done_button: "Done",
+};
 
 function hasCompletedTour() {
   try {
@@ -46,16 +39,7 @@ function markTourCompleted() {
   }
 }
 
-function clearTourCompleted() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (e) {
-    // localStorage not available
-  }
-}
-
 function findElement(selectors) {
-  // Try multiple selectors, return first match
   for (const selector of selectors) {
     const el = document.querySelector(selector);
     if (el) return el;
@@ -69,8 +53,8 @@ function buildTourSteps() {
   // Welcome step (no element)
   steps.push({
     popover: {
-      title: getI18n("welcome_title"),
-      description: getI18n("welcome_description"),
+      title: TEXT.welcome_title,
+      description: TEXT.welcome_description,
     },
   });
 
@@ -79,15 +63,15 @@ function buildTourSteps() {
     ".hamburger-dropdown",
     "#toggle-hamburger-menu",
     ".d-header .hamburger-panel",
-    "[data-toggle='hamburger-menu']",
     ".header-sidebar-toggle",
+    ".sidebar-toggle",
   ]);
   if (navElement) {
     steps.push({
       element: navElement,
       popover: {
-        title: getI18n("navigation_title"),
-        description: getI18n("navigation_description"),
+        title: TEXT.navigation_title,
+        description: TEXT.navigation_description,
         side: "bottom",
         align: "start",
       },
@@ -99,14 +83,13 @@ function buildTourSteps() {
     "#search-button",
     ".d-header .search-dropdown",
     ".search-icon",
-    "[data-toggle='search-menu']",
   ]);
   if (searchElement) {
     steps.push({
       element: searchElement,
       popover: {
-        title: getI18n("search_title"),
-        description: getI18n("search_description"),
+        title: TEXT.search_title,
+        description: TEXT.search_description,
         side: "bottom",
         align: "center",
       },
@@ -118,14 +101,13 @@ function buildTourSteps() {
     ".header-dropdown-toggle.current-user",
     ".d-header .current-user",
     "#current-user",
-    ".user-menu-dropdown",
   ]);
   if (userElement) {
     steps.push({
       element: userElement,
       popover: {
-        title: getI18n("user_menu_title"),
-        description: getI18n("user_menu_description"),
+        title: TEXT.user_menu_title,
+        description: TEXT.user_menu_description,
         side: "bottom",
         align: "end",
       },
@@ -137,14 +119,13 @@ function buildTourSteps() {
     ".topic-list",
     ".latest-topic-list",
     "#list-area",
-    ".topic-list-body",
   ]);
   if (topicListElement) {
     steps.push({
       element: topicListElement,
       popover: {
-        title: getI18n("topic_list_title"),
-        description: getI18n("topic_list_description"),
+        title: TEXT.topic_list_title,
+        description: TEXT.topic_list_description,
         side: "top",
         align: "center",
       },
@@ -155,14 +136,13 @@ function buildTourSteps() {
   const newTopicElement = findElement([
     "#create-topic",
     "button.new-topic",
-    "[data-action='createTopic']",
   ]);
   if (newTopicElement) {
     steps.push({
       element: newTopicElement,
       popover: {
-        title: getI18n("new_topic_title"),
-        description: getI18n("new_topic_description"),
+        title: TEXT.new_topic_title,
+        description: TEXT.new_topic_description,
         side: "top",
         align: "center",
       },
@@ -172,8 +152,8 @@ function buildTourSteps() {
   // Done step (no element)
   steps.push({
     popover: {
-      title: getI18n("done_title"),
-      description: getI18n("done_description"),
+      title: TEXT.done_title,
+      description: TEXT.done_description,
     },
   });
 
@@ -182,9 +162,12 @@ function buildTourSteps() {
 
 function startTour() {
   if (typeof window.driver === "undefined") {
-    console.warn("Driver.js not loaded");
+    console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
+
+  const steps = buildTourSteps();
+  console.log("[Onboarding Tour] Built steps:", steps);
 
   const driverObj = window.driver.js.driver({
     showProgress: true,
@@ -194,33 +177,30 @@ function startTour() {
     stagePadding: 8,
     stageRadius: 8,
     popoverOffset: 12,
-    nextBtnText: getI18n("next_button"),
-    prevBtnText: getI18n("prev_button"),
-    doneBtnText: getI18n("done_button"),
+    nextBtnText: TEXT.next_button,
+    prevBtnText: TEXT.prev_button,
+    doneBtnText: TEXT.done_button,
     onDestroyStarted: () => {
       markTourCompleted();
       driverObj.destroy();
     },
-    steps: buildTourSteps(),
+    steps: steps,
   });
 
   driverObj.drive();
 }
 
 function shouldShowTour(api, themeSettings) {
-  // Check if tour is enabled
   if (!themeSettings.tour_enabled) {
     console.log("[Onboarding Tour] Tour is disabled in settings");
     return false;
   }
 
-  // Check if already completed
   if (hasCompletedTour()) {
     console.log("[Onboarding Tour] Tour already completed (localStorage)");
     return false;
   }
 
-  // Check trust level
   const currentUser = api.getCurrentUser();
   if (currentUser) {
     const trustLevel = currentUser.trust_level || 0;
@@ -235,7 +215,6 @@ function shouldShowTour(api, themeSettings) {
 }
 
 function isHomePage(url) {
-  // Check if we're on the homepage or similar landing pages
   const homePatterns = [
     /^\/$/,
     /^\/latest\/?$/,
@@ -247,29 +226,11 @@ function isHomePage(url) {
   return homePatterns.some((pattern) => pattern.test(url));
 }
 
-function addReplayButton(api) {
-  api.decorateWidget("header-icons:before", (helper) => {
-    return helper.h(
-      "button.tour-replay-button.btn.btn-icon.no-text",
-      {
-        onclick: () => {
-          clearTourCompleted();
-          setTimeout(startTour, 100);
-        },
-        title: getI18n("replay_button"),
-      },
-      getI18n("replay_button")
-    );
-  });
-}
-
 function getThemeSettings() {
-  // settings is auto-injected by Discourse for theme components
   return {
     tour_enabled: settings.tour_enabled !== false,
     tour_delay_ms: settings.tour_delay_ms || 1500,
     target_trust_level: settings.target_trust_level ?? 0,
-    show_replay_button: settings.show_replay_button || false,
   };
 }
 
@@ -283,27 +244,19 @@ export default {
 
       console.log("[Onboarding Tour] Initializing with settings:", themeSettings);
 
-      // Add replay button if enabled
-      if (themeSettings.show_replay_button) {
-        addReplayButton(api);
-      }
-
       api.onPageChange((url) => {
         console.log("[Onboarding Tour] Page change detected:", url);
 
-        // Only trigger once per session
         if (tourTriggered) {
           console.log("[Onboarding Tour] Already triggered this session");
           return;
         }
 
-        // Only on homepage
         if (!isHomePage(url)) {
           console.log("[Onboarding Tour] Not on homepage");
           return;
         }
 
-        // Check all conditions
         if (!shouldShowTour(api, themeSettings)) {
           console.log("[Onboarding Tour] Conditions not met");
           return;
@@ -312,7 +265,6 @@ export default {
         tourTriggered = true;
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
-        // Delay to ensure DOM is ready
         setTimeout(() => {
           startTour();
         }, themeSettings.tour_delay_ms);

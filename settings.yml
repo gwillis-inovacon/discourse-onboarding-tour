@@ -16,8 +16,3 @@ target_trust_level:
   min: 0
   max: 4
   description: "Only show tour to users at or below this trust level (0 = new users only)"
-
-show_replay_button:
-  type: bool
-  default: false
-  description: "Show a button in the header to replay the tour"
