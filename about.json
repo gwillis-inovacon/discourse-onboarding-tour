@@ -1,9 +1,9 @@
 {
   "name": "Onboarding Tour",
-  "about_url": "",
-  "license_url": "",
+  "about_url": "https://github.com/gwillis-inovacon/discourse-onboarding-tour",
+  "license_url": "https://github.com/gwillis-inovacon/discourse-onboarding-tour/blob/main/LICENSE",
   "component": true,
-  "authors": "",
+  "authors": "gwillis-inovacon",
   "theme_version": "1.0.0",
   "minimum_discourse_version": "2.8.0"
 }
