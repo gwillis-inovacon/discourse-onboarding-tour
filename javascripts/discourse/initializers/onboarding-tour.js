@@ -1,8 +1,6 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { settings } from "discourse/lib/theme-settings-store";
 
 const STORAGE_KEY = "discourse_onboarding_tour_completed";
-const THEME_ID = parseInt(document.currentScript?.dataset?.themeId || "0", 10);
 
 function getI18n(key) {
   if (typeof I18n !== "undefined" && I18n.t) {
@@ -266,13 +264,12 @@ function addReplayButton(api) {
 }
 
 function getThemeSettings() {
-  // Access theme component settings
-  const themeSettings = settings.get(THEME_ID) || {};
+  // settings is auto-injected by Discourse for theme components
   return {
-    tour_enabled: themeSettings.tour_enabled !== false,
-    tour_delay_ms: themeSettings.tour_delay_ms || 1500,
-    target_trust_level: themeSettings.target_trust_level ?? 0,
-    show_replay_button: themeSettings.show_replay_button || false,
+    tour_enabled: settings.tour_enabled !== false,
+    tour_delay_ms: settings.tour_delay_ms || 1500,
+    target_trust_level: settings.target_trust_level ?? 0,
+    show_replay_button: settings.show_replay_button || false,
   };
 }
 
