@@ -1,173 +1,122 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
 
-const STORAGE_KEY = "discourse_onboarding_tour_completed";
+const STORAGE_KEY_ANON = "discourse_tour_anonymous_completed";
+const STORAGE_KEY_LOGGED_IN = "discourse_tour_logged_in_completed";
 
-// Hardcoded strings (more reliable than I18n for theme components)
-const TEXT = {
-  welcome_title: "Welcome to Our Community!",
-  welcome_description: "Let us show you around. This quick tour will help you get started.",
-  navigation_title: "Navigation Menu",
-  navigation_description: "Click here to browse categories, tags, and find your way around the forum.",
-  search_title: "Search",
-  search_description: "Looking for something? Use search to find topics, posts, and users.",
-  user_menu_title: "Your Profile",
-  user_menu_description: "Access your notifications, messages, bookmarks, and profile settings here.",
-  topic_list_title: "Topic List",
-  topic_list_description: "Browse discussions here. Click any topic title to read and join the conversation.",
-  new_topic_title: "Start a Discussion",
-  new_topic_description: "Ready to share? Click here to create a new topic and start a conversation.",
-  done_title: "You're All Set!",
-  done_description: "That's the basics! Explore and don't hesitate to ask if you need help.",
-  next_button: "Next",
-  prev_button: "Back",
-  done_button: "Done",
-};
+// Default steps if no config provided
+const DEFAULT_STEPS_ANONYMOUS = [
+  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users.", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse and join conversations.", side: "top" },
+  { selector: ".sign-up-button, .btn-primary.sign-up", title: "Join Us", description: "Create an account to participate.", side: "bottom" },
+];
 
-function hasCompletedTour() {
+const DEFAULT_STEPS_LOGGED_IN = [
+  { selector: ".header-sidebar-toggle, #toggle-hamburger-menu", title: "Navigation", description: "Browse categories and tags.", side: "bottom" },
+  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users.", side: "bottom" },
+  { selector: ".header-dropdown-toggle.current-user", title: "Your Profile", description: "Notifications, messages, and settings.", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse and join conversations.", side: "top" },
+  { selector: "#create-topic", title: "New Topic", description: "Start a new discussion.", side: "top" },
+];
+
+function getStorageKey(isLoggedIn) {
+  return isLoggedIn ? STORAGE_KEY_LOGGED_IN : STORAGE_KEY_ANON;
+}
+
+function hasCompletedTour(isLoggedIn) {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "true";
+    return localStorage.getItem(getStorageKey(isLoggedIn)) === "true";
   } catch (e) {
     return false;
   }
 }
 
-function markTourCompleted() {
+function markTourCompleted(isLoggedIn) {
   try {
-    localStorage.setItem(STORAGE_KEY, "true");
+    localStorage.setItem(getStorageKey(isLoggedIn), "true");
   } catch (e) {
     // localStorage not available
   }
 }
 
-function findElement(selectors) {
-  for (const selector of selectors) {
-    const el = document.querySelector(selector);
+function parseStepsConfig(jsonString, defaults) {
+  if (!jsonString || jsonString === "[]") {
+    return defaults;
+  }
+  try {
+    const parsed = JSON.parse(jsonString);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return defaults;
+  } catch (e) {
+    console.warn("[Onboarding Tour] Failed to parse steps config:", e);
+    return defaults;
+  }
+}
+
+function findElement(selector) {
+  // Handle comma-separated selectors (try each one)
+  const selectors = selector.split(",").map(s => s.trim());
+  for (const sel of selectors) {
+    const el = document.querySelector(sel);
     if (el) return el;
   }
   return null;
 }
 
-function buildTourSteps() {
+function buildTourSteps(stepsConfig) {
   const steps = [];
 
   // Welcome step (no element)
   steps.push({
     popover: {
-      title: TEXT.welcome_title,
-      description: TEXT.welcome_description,
+      title: "Welcome!",
+      description: "Let us show you around. This quick tour will help you get started.",
     },
   });
 
-  // Navigation menu
-  const navElement = findElement([
-    ".hamburger-dropdown",
-    "#toggle-hamburger-menu",
-    ".d-header .hamburger-panel",
-    ".header-sidebar-toggle",
-    ".sidebar-toggle",
-  ]);
-  if (navElement) {
-    steps.push({
-      element: navElement,
-      popover: {
-        title: TEXT.navigation_title,
-        description: TEXT.navigation_description,
-        side: "bottom",
-        align: "start",
-      },
-    });
-  }
-
-  // Search
-  const searchElement = findElement([
-    "#search-button",
-    ".d-header .search-dropdown",
-    ".search-icon",
-  ]);
-  if (searchElement) {
-    steps.push({
-      element: searchElement,
-      popover: {
-        title: TEXT.search_title,
-        description: TEXT.search_description,
-        side: "bottom",
-        align: "center",
-      },
-    });
-  }
-
-  // User menu
-  const userElement = findElement([
-    ".header-dropdown-toggle.current-user",
-    ".d-header .current-user",
-    "#current-user",
-  ]);
-  if (userElement) {
-    steps.push({
-      element: userElement,
-      popover: {
-        title: TEXT.user_menu_title,
-        description: TEXT.user_menu_description,
-        side: "bottom",
-        align: "end",
-      },
-    });
-  }
-
-  // Topic list
-  const topicListElement = findElement([
-    ".topic-list",
-    ".latest-topic-list",
-    "#list-area",
-  ]);
-  if (topicListElement) {
-    steps.push({
-      element: topicListElement,
-      popover: {
-        title: TEXT.topic_list_title,
-        description: TEXT.topic_list_description,
-        side: "top",
-        align: "center",
-      },
-    });
-  }
-
-  // New topic button
-  const newTopicElement = findElement([
-    "#create-topic",
-    "button.new-topic",
-  ]);
-  if (newTopicElement) {
-    steps.push({
-      element: newTopicElement,
-      popover: {
-        title: TEXT.new_topic_title,
-        description: TEXT.new_topic_description,
-        side: "top",
-        align: "center",
-      },
-    });
+  // Build steps from config
+  for (const step of stepsConfig) {
+    const element = findElement(step.selector);
+    if (element) {
+      steps.push({
+        element: element,
+        popover: {
+          title: step.title || "Feature",
+          description: step.description || "",
+          side: step.side || "bottom",
+          align: step.align || "center",
+        },
+      });
+    } else {
+      console.log(`[Onboarding Tour] Element not found for selector: ${step.selector}`);
+    }
   }
 
   // Done step (no element)
   steps.push({
     popover: {
-      title: TEXT.done_title,
-      description: TEXT.done_description,
+      title: "You're All Set!",
+      description: "That's the basics. Explore and enjoy!",
     },
   });
 
   return steps;
 }
 
-function startTour(themeSettings) {
+function startTour(stepsConfig, isLoggedIn) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
 
-  const steps = buildTourSteps();
-  console.log("[Onboarding Tour] Built steps:", steps);
+  const steps = buildTourSteps(stepsConfig);
+  console.log("[Onboarding Tour] Starting tour with steps:", steps);
+
+  if (steps.length <= 2) {
+    console.log("[Onboarding Tour] No valid steps found, skipping tour");
+    return;
+  }
 
   const driverObj = window.driver.js.driver({
     showProgress: true,
@@ -177,13 +126,11 @@ function startTour(themeSettings) {
     stagePadding: 0,
     stageRadius: 0,
     popoverOffset: 16,
-    overlayColor: themeSettings.overlay_color,
-    overlayOpacity: themeSettings.overlay_opacity,
-    nextBtnText: TEXT.next_button,
-    prevBtnText: TEXT.prev_button,
-    doneBtnText: TEXT.done_button,
+    nextBtnText: "Next",
+    prevBtnText: "Back",
+    doneBtnText: "Done",
     onDestroyStarted: () => {
-      markTourCompleted();
+      markTourCompleted(isLoggedIn);
       driverObj.destroy();
     },
     steps: steps,
@@ -192,24 +139,26 @@ function startTour(themeSettings) {
   driverObj.drive();
 }
 
-function shouldShowTour(api, themeSettings) {
+function shouldShowTour(api, themeSettings, isLoggedIn) {
   if (!themeSettings.tour_enabled) {
     console.log("[Onboarding Tour] Tour is disabled in settings");
     return false;
   }
 
-  if (hasCompletedTour()) {
-    console.log("[Onboarding Tour] Tour already completed (localStorage)");
+  if (hasCompletedTour(isLoggedIn)) {
+    console.log("[Onboarding Tour] Tour already completed for this user type");
     return false;
   }
 
-  const currentUser = api.getCurrentUser();
-  if (currentUser) {
-    const trustLevel = currentUser.trust_level || 0;
-    console.log("[Onboarding Tour] User trust level:", trustLevel, "Max allowed:", themeSettings.target_trust_level);
-    if (trustLevel > themeSettings.target_trust_level) {
-      console.log("[Onboarding Tour] Trust level too high, skipping");
-      return false;
+  // Trust level check only applies to logged-in users
+  if (isLoggedIn) {
+    const currentUser = api.getCurrentUser();
+    if (currentUser) {
+      const trustLevel = currentUser.trust_level || 0;
+      if (trustLevel > themeSettings.target_trust_level) {
+        console.log("[Onboarding Tour] Trust level too high:", trustLevel);
+        return false;
+      }
     }
   }
 
@@ -232,9 +181,9 @@ function getThemeSettings() {
   return {
     tour_enabled: settings.tour_enabled !== false,
     tour_delay_ms: settings.tour_delay_ms || 1500,
-    target_trust_level: settings.target_trust_level ?? 0,
-    overlay_color: settings.overlay_color || "#000000",
-    overlay_opacity: parseFloat(settings.overlay_opacity) || 0.75,
+    target_trust_level: settings.target_trust_level ?? 4,
+    tour_steps_anonymous: settings.tour_steps_anonymous || "[]",
+    tour_steps_logged_in: settings.tour_steps_logged_in || "[]",
   };
 }
 
@@ -245,24 +194,28 @@ export default {
     withPluginApi("1.0", (api) => {
       let tourTriggered = false;
       const themeSettings = getThemeSettings();
+      const currentUser = api.getCurrentUser();
+      const isLoggedIn = !!currentUser;
 
-      console.log("[Onboarding Tour] Initializing with settings:", themeSettings);
+      console.log("[Onboarding Tour] Initializing. Logged in:", isLoggedIn);
+
+      // Parse the appropriate steps config
+      const stepsConfig = isLoggedIn
+        ? parseStepsConfig(themeSettings.tour_steps_logged_in, DEFAULT_STEPS_LOGGED_IN)
+        : parseStepsConfig(themeSettings.tour_steps_anonymous, DEFAULT_STEPS_ANONYMOUS);
+
+      console.log("[Onboarding Tour] Using steps config:", stepsConfig);
 
       api.onPageChange((url) => {
-        console.log("[Onboarding Tour] Page change detected:", url);
-
         if (tourTriggered) {
-          console.log("[Onboarding Tour] Already triggered this session");
           return;
         }
 
         if (!isHomePage(url)) {
-          console.log("[Onboarding Tour] Not on homepage");
           return;
         }
 
-        if (!shouldShowTour(api, themeSettings)) {
-          console.log("[Onboarding Tour] Conditions not met");
+        if (!shouldShowTour(api, themeSettings, isLoggedIn)) {
           return;
         }
 
@@ -270,7 +223,7 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour(themeSettings);
+          startTour(stepsConfig, isLoggedIn);
         }, themeSettings.tour_delay_ms);
       });
     });

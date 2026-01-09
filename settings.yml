@@ -1,7 +1,7 @@
 tour_enabled:
   type: bool
   default: true
-  description: "Enable the onboarding tour for new users"
+  description: "Enable the onboarding tour"
 
 tour_delay_ms:
   type: integer
@@ -12,64 +12,19 @@ tour_delay_ms:
 
 target_trust_level:
   type: integer
-  default: 0
+  default: 4
   min: 0
   max: 4
-  description: "Only show tour to users at or below this trust level (0 = new users only)"
+  description: "Only show tour to logged-in users at or below this trust level"
 
-popover_background:
+tour_steps_anonymous:
   type: string
-  default: "#1a1a1a"
-  description: "Popover background color"
+  default: "[]"
+  textarea: true
+  description: "Tour steps for anonymous (not logged in) users - paste JSON from Tour Editor"
 
-popover_text_color:
+tour_steps_logged_in:
   type: string
-  default: "#ffffff"
-  description: "Popover text color"
-
-popover_border_color:
-  type: string
-  default: "#ffffff"
-  description: "Popover border color"
-
-popover_border_width:
-  type: integer
-  default: 3
-  min: 1
-  max: 10
-  description: "Popover border width in pixels"
-
-link_color:
-  type: string
-  default: "#6b9fc8"
-  description: "Link color in popover text"
-
-button_background:
-  type: string
-  default: "#ffffff"
-  description: "Button background color"
-
-button_text_color:
-  type: string
-  default: "#1a1a1a"
-  description: "Button text color"
-
-button_hover_background:
-  type: string
-  default: "#cccccc"
-  description: "Button hover background color"
-
-overlay_color:
-  type: string
-  default: "#000000"
-  description: "Overlay background color"
-
-overlay_opacity:
-  type: string
-  default: "0.85"
-  description: "Overlay opacity (0 to 1)"
-
-highlight_border_color:
-  type: string
-  default: "#ffffff"
-  description: "Border color around highlighted element"
+  default: "[]"
+  textarea: true
+  description: "Tour steps for logged-in users - paste JSON from Tour Editor"
