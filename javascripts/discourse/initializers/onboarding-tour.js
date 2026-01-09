@@ -1,20 +1,10 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import I18n from "discourse-i18n";
 
 const STORAGE_KEY_ANON = "discourse_tour_anonymous_completed";
 const STORAGE_KEY_LOGGED_IN = "discourse_tour_logged_in_completed";
 
-// Hardcoded translations (i18n via locale files not working reliably in theme components)
-const TRANSLATIONS = {
-  welcome_title: "Welcome!",
-  welcome_description: "Let us show you around. This quick tour will help you get started.",
-  done_title: "You're All Set!",
-  done_description: "That's the basics. Explore and enjoy!",
-  next_button: "Next",
-  prev_button: "Back",
-  done_button: "Done",
-};
-
-// Default step configs with inline text
+// Default step configs with inline text (custom steps from Tour Editor)
 const DEFAULT_STEPS_ANONYMOUS = [
   { selector: "#search-button", title: "Search", description: "Find topics, posts, and users across the forum.", side: "bottom" },
   { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse conversations and see what the community is talking about.", side: "top" },
@@ -29,8 +19,9 @@ const DEFAULT_STEPS_LOGGED_IN = [
   { selector: "#create-topic", title: "New Topic", description: "Start a new discussion and share your thoughts.", side: "top" },
 ];
 
+// themePrefix is auto-injected by Discourse for theme components
 function t(key) {
-  return TRANSLATIONS[key] || key;
+  return I18n.t(themePrefix(key));
 }
 
 function getStorageKey(isLoggedIn) {

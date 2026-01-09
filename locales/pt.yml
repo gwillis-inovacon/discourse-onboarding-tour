@@ -1,0 +1,8 @@
+pt:
+  welcome_title: "Bem-vindo!"
+  welcome_description: "Deixe-nos mostrar o site. Este breve tour vai ajudá-lo a começar."
+  done_title: "Tudo Pronto!"
+  done_description: "Esses são os básicos. Explore e aproveite!"
+  next_button: "Próximo"
+  prev_button: "Voltar"
+  done_button: "Concluir"
