@@ -1,5 +1,5 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import I18n from "I18n";
+import I18n from "discourse-i18n";
 
 const STORAGE_KEY_ANON = "discourse_tour_anonymous_completed";
 const STORAGE_KEY_LOGGED_IN = "discourse_tour_logged_in_completed";
