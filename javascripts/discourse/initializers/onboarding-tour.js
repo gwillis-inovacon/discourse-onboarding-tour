@@ -1,26 +1,36 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
-import I18n from "discourse-i18n";
 
 const STORAGE_KEY_ANON = "discourse_tour_anonymous_completed";
 const STORAGE_KEY_LOGGED_IN = "discourse_tour_logged_in_completed";
 
-// Default step configs if no JSON provided (keys reference locale files)
+// Hardcoded translations (i18n via locale files not working reliably in theme components)
+const TRANSLATIONS = {
+  welcome_title: "Welcome!",
+  welcome_description: "Let us show you around. This quick tour will help you get started.",
+  done_title: "You're All Set!",
+  done_description: "That's the basics. Explore and enjoy!",
+  next_button: "Next",
+  prev_button: "Back",
+  done_button: "Done",
+};
+
+// Default step configs with inline text
 const DEFAULT_STEPS_ANONYMOUS = [
-  { selector: "#search-button", key: "anon_search", side: "bottom" },
-  { selector: ".topic-list, .latest-topic-list", key: "anon_topics", side: "top" },
-  { selector: ".sign-up-button, .btn-primary.sign-up", key: "anon_signup", side: "bottom" },
+  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users across the forum.", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse conversations and see what the community is talking about.", side: "top" },
+  { selector: ".sign-up-button, .btn-primary.sign-up", title: "Join Us", description: "Create an account to participate in discussions.", side: "bottom" },
 ];
 
 const DEFAULT_STEPS_LOGGED_IN = [
-  { selector: ".header-sidebar-toggle, #toggle-hamburger-menu", key: "user_navigation", side: "bottom" },
-  { selector: "#search-button", key: "user_search", side: "bottom" },
-  { selector: ".header-dropdown-toggle.current-user", key: "user_profile", side: "bottom" },
-  { selector: ".topic-list, .latest-topic-list", key: "user_topics", side: "top" },
-  { selector: "#create-topic", key: "user_newtopic", side: "top" },
+  { selector: ".header-sidebar-toggle, #toggle-hamburger-menu", title: "Navigation", description: "Browse categories, tags, and find your way around.", side: "bottom" },
+  { selector: "#search-button", title: "Search", description: "Find topics, posts, and users across the forum.", side: "bottom" },
+  { selector: ".header-dropdown-toggle.current-user", title: "Your Profile", description: "Access notifications, messages, bookmarks, and settings.", side: "bottom" },
+  { selector: ".topic-list, .latest-topic-list", title: "Discussions", description: "Browse and join conversations with the community.", side: "top" },
+  { selector: "#create-topic", title: "New Topic", description: "Start a new discussion and share your thoughts.", side: "top" },
 ];
 
 function t(key) {
-  return I18n.t(`js.onboarding_tour.${key}`);
+  return TRANSLATIONS[key] || key;
 }
 
 function getStorageKey(isLoggedIn) {
@@ -86,9 +96,9 @@ function buildTourSteps(stepsConfig) {
   for (const step of stepsConfig) {
     const isCenteredStep = !step.selector || step.selector.trim() === "";
 
-    // Get title and description from locale using the key
-    const title = step.key ? t(`${step.key}_title`) : (step.title || "");
-    const description = step.key ? t(`${step.key}_description`) : (step.description || "");
+    // Get title and description directly from step config
+    const title = step.title || "";
+    const description = step.description || "";
 
     if (isCenteredStep) {
       // Centered modal step (no element)
