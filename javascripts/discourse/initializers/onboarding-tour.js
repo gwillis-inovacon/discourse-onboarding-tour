@@ -72,14 +72,14 @@ function findElement(selector) {
   return null;
 }
 
-function buildTourSteps(stepsConfig) {
+function buildTourSteps(stepsConfig, themeSettings) {
   const steps = [];
 
-  // Welcome step (no element)
+  // Welcome step (no element) - use settings or fallback to translation
   steps.push({
     popover: {
-      title: t("welcome_title"),
-      description: t("welcome_description"),
+      title: themeSettings.welcome_title || t("welcome_title"),
+      description: themeSettings.welcome_description || t("welcome_description"),
     },
   });
 
@@ -118,24 +118,24 @@ function buildTourSteps(stepsConfig) {
     }
   }
 
-  // Done step (no element)
+  // Done step (no element) - use settings or fallback to translation
   steps.push({
     popover: {
-      title: t("done_title"),
-      description: t("done_description"),
+      title: themeSettings.done_title || t("done_title"),
+      description: themeSettings.done_description || t("done_description"),
     },
   });
 
   return steps;
 }
 
-function startTour(stepsConfig, isLoggedIn) {
+function startTour(stepsConfig, isLoggedIn, themeSettings) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
 
-  const steps = buildTourSteps(stepsConfig);
+  const steps = buildTourSteps(stepsConfig, themeSettings);
   console.log("[Onboarding Tour] Starting tour with steps:", steps);
 
   if (steps.length === 0) {
@@ -246,7 +246,7 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour(stepsConfig, isLoggedIn);
+          startTour(stepsConfig, isLoggedIn, themeSettings);
         }, themeSettings.tour_delay_ms);
       });
     });
