@@ -16,3 +16,55 @@ target_trust_level:
   min: 0
   max: 4
   description: "Only show tour to users at or below this trust level (0 = new users only)"
+
+popover_background:
+  type: string
+  default: "#ffffff"
+  description: "Popover background color"
+
+popover_text_color:
+  type: string
+  default: "#000000"
+  description: "Popover text color"
+
+popover_border_color:
+  type: string
+  default: "#000000"
+  description: "Popover border color"
+
+popover_border_width:
+  type: integer
+  default: 3
+  min: 1
+  max: 10
+  description: "Popover border width in pixels"
+
+button_background:
+  type: string
+  default: "#000000"
+  description: "Button background color"
+
+button_text_color:
+  type: string
+  default: "#ffffff"
+  description: "Button text color"
+
+button_hover_background:
+  type: string
+  default: "#333333"
+  description: "Button hover background color"
+
+overlay_color:
+  type: string
+  default: "#000000"
+  description: "Overlay background color"
+
+overlay_opacity:
+  type: string
+  default: "0.75"
+  description: "Overlay opacity (0 to 1)"
+
+highlight_border_color:
+  type: string
+  default: "#000000"
+  description: "Border color around highlighted element"

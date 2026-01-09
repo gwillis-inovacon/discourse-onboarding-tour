@@ -1,29 +1,159 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
 <style>
-  /* Custom styling for the tour */
+  /* ===========================================
+     BRUTALIST DRIVER.JS THEME
+     Sharp edges, bold borders, raw aesthetic
+     =========================================== */
+
+  /* Popover container - no rounded corners, bold border */
   .driver-popover {
-    max-width: 340px;
+    background-color: {{settings.popover_background}} !important;
+    color: {{settings.popover_text_color}} !important;
+    border: {{settings.popover_border_width}}px solid {{settings.popover_border_color}} !important;
+    border-radius: 0 !important;
+    box-shadow: 8px 8px 0 {{settings.popover_border_color}} !important;
+    max-width: 380px;
+    padding: 0 !important;
+    font-family: system-ui, -apple-system, sans-serif;
   }
 
+  /* Arrow - sharp, no curves */
+  .driver-popover-arrow {
+    border: {{settings.popover_border_width}}px solid {{settings.popover_border_color}} !important;
+    background-color: {{settings.popover_background}} !important;
+    border-radius: 0 !important;
+  }
+
+  .driver-popover-arrow-side-top {
+    border-top: none !important;
+    border-left: none !important;
+  }
+
+  .driver-popover-arrow-side-bottom {
+    border-bottom: none !important;
+    border-right: none !important;
+  }
+
+  .driver-popover-arrow-side-left {
+    border-left: none !important;
+    border-bottom: none !important;
+  }
+
+  .driver-popover-arrow-side-right {
+    border-right: none !important;
+    border-top: none !important;
+  }
+
+  /* Title - bold, uppercase, stark */
   .driver-popover-title {
-    font-size: 1.1em;
-    font-weight: 600;
+    font-size: 1.15em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: {{settings.popover_text_color}} !important;
+    padding: 16px 20px 8px 20px;
+    margin: 0;
+    border-bottom: 2px solid {{settings.popover_border_color}};
   }
 
+  /* Description - clean, readable */
   .driver-popover-description {
     font-size: 0.95em;
-    line-height: 1.5;
+    line-height: 1.6;
+    color: {{settings.popover_text_color}} !important;
+    padding: 12px 20px 16px 20px;
+    margin: 0;
+    opacity: 0.85;
   }
 
-  /* Replay button styling */
-  .tour-replay-button {
-    cursor: pointer;
-    padding: 6px 10px;
-    font-size: 0.85em;
-    opacity: 0.8;
+  /* Close button - minimal */
+  .driver-popover-close-btn {
+    color: {{settings.popover_text_color}} !important;
+    font-size: 24px;
+    font-weight: 400;
+    top: 12px;
+    right: 12px;
+    opacity: 0.6;
+    transition: opacity 0.15s;
   }
 
-  .tour-replay-button:hover {
+  .driver-popover-close-btn:hover {
     opacity: 1;
+  }
+
+  /* Footer / navigation area */
+  .driver-popover-footer {
+    padding: 12px 20px 16px 20px;
+    border-top: 2px solid {{settings.popover_border_color}};
+    background-color: transparent;
+  }
+
+  /* Progress indicator */
+  .driver-popover-progress-text {
+    font-size: 0.8em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: {{settings.popover_text_color}} !important;
+    opacity: 0.5;
+  }
+
+  /* Buttons - brutalist style */
+  .driver-popover-navigation-btns {
+    gap: 8px;
+  }
+
+  .driver-popover-navigation-btns button {
+    background-color: {{settings.button_background}} !important;
+    color: {{settings.button_text_color}} !important;
+    border: 2px solid {{settings.popover_border_color}} !important;
+    border-radius: 0 !important;
+    padding: 10px 20px;
+    font-size: 0.85em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 3px 3px 0 {{settings.popover_border_color}};
+  }
+
+  .driver-popover-navigation-btns button:hover {
+    background-color: {{settings.button_hover_background}} !important;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 {{settings.popover_border_color}};
+  }
+
+  .driver-popover-navigation-btns button:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 {{settings.popover_border_color}};
+  }
+
+  /* Previous button - outline style */
+  .driver-popover-prev-btn {
+    background-color: transparent !important;
+    color: {{settings.popover_text_color}} !important;
+  }
+
+  .driver-popover-prev-btn:hover {
+    background-color: {{settings.popover_border_color}} !important;
+    color: {{settings.popover_background}} !important;
+  }
+
+  /* Overlay */
+  .driver-overlay {
+    background-color: {{settings.overlay_color}} !important;
+    opacity: {{settings.overlay_opacity}} !important;
+  }
+
+  /* Highlighted element stage - sharp edges */
+  .driver-active-element {
+    outline: 3px solid {{settings.highlight_border_color}} !important;
+    outline-offset: 4px;
+  }
+
+  /* Remove default stage styling, use outline instead */
+  #driver-highlighted-element-stage {
+    border-radius: 0 !important;
   }
 </style>

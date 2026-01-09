@@ -160,7 +160,7 @@ function buildTourSteps() {
   return steps;
 }
 
-function startTour() {
+function startTour(themeSettings) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
@@ -171,12 +171,14 @@ function startTour() {
 
   const driverObj = window.driver.js.driver({
     showProgress: true,
-    animate: true,
+    animate: false,
     allowClose: true,
     overlayClickBehavior: "close",
-    stagePadding: 8,
-    stageRadius: 8,
-    popoverOffset: 12,
+    stagePadding: 0,
+    stageRadius: 0,
+    popoverOffset: 16,
+    overlayColor: themeSettings.overlay_color,
+    overlayOpacity: themeSettings.overlay_opacity,
     nextBtnText: TEXT.next_button,
     prevBtnText: TEXT.prev_button,
     doneBtnText: TEXT.done_button,
@@ -231,6 +233,8 @@ function getThemeSettings() {
     tour_enabled: settings.tour_enabled !== false,
     tour_delay_ms: settings.tour_delay_ms || 1500,
     target_trust_level: settings.target_trust_level ?? 0,
+    overlay_color: settings.overlay_color || "#000000",
+    overlay_opacity: parseFloat(settings.overlay_opacity) || 0.75,
   };
 }
 
@@ -266,7 +270,7 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour();
+          startTour(themeSettings);
         }, themeSettings.tour_delay_ms);
       });
     });
