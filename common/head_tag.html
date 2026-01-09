@@ -1,36 +1,36 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
 <style>
   /* ===========================================
-     BRUTALIST DRIVER.JS THEME
-     Sharp edges, bold borders, raw aesthetic
+     BRUTALIST DRIVER.JS THEME - DARK MODE
+     Using site color palette
      =========================================== */
 
-  /* Popover container - no rounded corners, bold border */
+  /* Popover container */
   .driver-popover {
-    background-color: {{settings.popover_background}} !important;
-    color: {{settings.popover_text_color}} !important;
-    border: {{settings.popover_border_width}}px solid {{settings.popover_border_color}} !important;
+    background-color: #222222 !important;
+    color: #dddddd !important;
+    border: 3px solid #f28621 !important;
     border-radius: 0 !important;
-    box-shadow: 8px 8px 0 {{settings.popover_border_color}} !important;
-    max-width: 380px;
+    box-shadow: 6px 6px 0 #f28621 !important;
+    max-width: 340px;
     padding: 0 !important;
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
   }
 
   /* Links in popover */
   .driver-popover a {
-    color: {{settings.link_color}} !important;
+    color: #f28621 !important;
     text-decoration: underline;
   }
 
   .driver-popover a:hover {
-    opacity: 0.8;
+    color: #facc15 !important;
   }
 
-  /* Arrow - sharp, no curves */
+  /* Arrow */
   .driver-popover-arrow {
-    border: {{settings.popover_border_width}}px solid {{settings.popover_border_color}} !important;
-    background-color: {{settings.popover_background}} !important;
+    border: 3px solid #f28621 !important;
+    background-color: #222222 !important;
     border-radius: 0 !important;
   }
 
@@ -54,118 +54,122 @@
     border-top: none !important;
   }
 
-  /* Title - bold, uppercase, stark */
+  /* Title */
   .driver-popover-title {
-    font-size: 1.15em;
-    font-weight: 800;
+    font-size: 1em;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: {{settings.popover_text_color}} !important;
-    padding: 16px 20px 8px 20px;
+    color: #dddddd !important;
+    padding: 14px 16px 10px 16px;
     margin: 0;
-    border-bottom: 2px solid {{settings.popover_border_color}};
+    border-bottom: 2px solid #f28621;
   }
 
-  /* Description - clean, readable */
+  /* Description */
   .driver-popover-description {
-    font-size: 0.95em;
-    line-height: 1.6;
-    color: {{settings.popover_text_color}} !important;
-    padding: 12px 20px 16px 20px;
+    font-size: 0.85em;
+    line-height: 1.5;
+    color: #dddddd !important;
+    padding: 10px 16px 14px 16px;
     margin: 0;
-    opacity: 0.85;
+    opacity: 0.9;
   }
 
-  /* Close button - minimal */
+  /* Close button */
   .driver-popover-close-btn {
-    color: {{settings.popover_text_color}} !important;
-    font-size: 24px;
+    color: #dddddd !important;
+    font-size: 20px;
     font-weight: 400;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
     opacity: 0.6;
     transition: opacity 0.15s;
   }
 
   .driver-popover-close-btn:hover {
     opacity: 1;
+    color: #e45735 !important;
   }
 
-  /* Footer / navigation area */
+  /* Footer */
   .driver-popover-footer {
-    padding: 12px 20px 16px 20px;
-    border-top: 2px solid {{settings.popover_border_color}};
-    background-color: transparent;
+    padding: 10px 16px 14px 16px;
+    border-top: 2px solid #313131;
+    background-color: #111111;
   }
 
   /* Progress indicator */
   .driver-popover-progress-text {
-    font-size: 0.8em;
-    font-weight: 700;
+    font-size: 0.75em;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: {{settings.popover_text_color}} !important;
+    color: #dddddd !important;
     opacity: 0.5;
   }
 
-  /* Buttons - brutalist style */
+  /* Buttons container */
   .driver-popover-navigation-btns {
     gap: 8px;
   }
 
+  /* Next/Done button - orange accent */
   .driver-popover-navigation-btns button {
-    background-color: {{settings.button_background}} !important;
-    color: {{settings.button_text_color}} !important;
-    border: 2px solid {{settings.popover_border_color}} !important;
+    background-color: #f28621 !important;
+    color: #111111 !important;
+    border: 2px solid #f28621 !important;
     border-radius: 0 !important;
-    padding: 10px 20px;
-    font-size: 0.85em;
+    padding: 8px 16px;
+    font-size: 0.8em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: transform 0.1s, box-shadow 0.1s;
-    box-shadow: 3px 3px 0 {{settings.popover_border_color}};
+    transition: all 0.1s;
+    box-shadow: 3px 3px 0 #a87137;
+    font-family: 'JetBrains Mono', monospace;
   }
 
   .driver-popover-navigation-btns button:hover {
-    background-color: {{settings.button_hover_background}} !important;
+    background-color: #facc15 !important;
+    border-color: #facc15 !important;
     transform: translate(-1px, -1px);
-    box-shadow: 4px 4px 0 {{settings.popover_border_color}};
+    box-shadow: 4px 4px 0 #a87137;
   }
 
   .driver-popover-navigation-btns button:active {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 {{settings.popover_border_color}};
+    box-shadow: 1px 1px 0 #a87137;
   }
 
   /* Previous button - outline style */
   .driver-popover-prev-btn {
     background-color: transparent !important;
-    color: {{settings.popover_text_color}} !important;
-    border-color: {{settings.popover_text_color}} !important;
-    box-shadow: 3px 3px 0 {{settings.popover_text_color}} !important;
+    color: #dddddd !important;
+    border: 2px solid #dddddd !important;
+    box-shadow: 3px 3px 0 #313131 !important;
   }
 
   .driver-popover-prev-btn:hover {
-    background-color: {{settings.popover_text_color}} !important;
-    color: {{settings.popover_background}} !important;
-    box-shadow: 4px 4px 0 {{settings.popover_text_color}} !important;
+    background-color: #313131 !important;
+    color: #dddddd !important;
+    border-color: #dddddd !important;
+    box-shadow: 4px 4px 0 #313131 !important;
   }
 
   /* Overlay */
   .driver-overlay {
-    background-color: {{settings.overlay_color}} !important;
-    opacity: {{settings.overlay_opacity}} !important;
+    background-color: #000000 !important;
+    opacity: 0.85 !important;
   }
 
-  /* Highlighted element stage - sharp edges */
+  /* Highlighted element */
   .driver-active-element {
-    outline: 3px solid {{settings.highlight_border_color}} !important;
+    outline: 3px solid #f28621 !important;
     outline-offset: 4px;
   }
 
-  /* Remove default stage styling, use outline instead */
   #driver-highlighted-element-stage {
     border-radius: 0 !important;
   }
