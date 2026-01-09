@@ -24,6 +24,33 @@ function t(key) {
   return I18n.t(themePrefix(key));
 }
 
+// Get localized text from multi-language object with fallback
+// Supports: { en: "...", es: "...", pt: "..." } or plain string
+function getLocalizedText(textObj) {
+  if (!textObj) return "";
+
+  // If it's a plain string, return it
+  if (typeof textObj === "string") return textObj;
+
+  // If it's an object, pick the right language
+  if (typeof textObj === "object") {
+    const locale = I18n.currentLocale() || "en";
+    const lang = locale.split("-")[0]; // "pt-BR" -> "pt"
+
+    // Try user's language first
+    if (textObj[lang]) return textObj[lang];
+
+    // Fallback to English
+    if (textObj.en) return textObj.en;
+
+    // Fallback to first available
+    const available = Object.values(textObj).find(v => v);
+    if (available) return available;
+  }
+
+  return "";
+}
+
 function getStorageKey(isLoggedIn) {
   return isLoggedIn ? STORAGE_KEY_LOGGED_IN : STORAGE_KEY_ANON;
 }
@@ -87,9 +114,9 @@ function buildTourSteps(stepsConfig, themeSettings) {
   for (const step of stepsConfig) {
     const isCenteredStep = !step.selector || step.selector.trim() === "";
 
-    // Get title and description directly from step config
-    const title = step.title || "";
-    const description = step.description || "";
+    // Get localized title and description from step config
+    const title = getLocalizedText(step.title);
+    const description = getLocalizedText(step.description);
 
     if (isCenteredStep) {
       // Centered modal step (no element)
