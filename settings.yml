@@ -19,17 +19,17 @@ target_trust_level:
 
 popover_background:
   type: string
-  default: "#ffffff"
+  default: "#1a1a1a"
   description: "Popover background color"
 
 popover_text_color:
   type: string
-  default: "#000000"
+  default: "#ffffff"
   description: "Popover text color"
 
 popover_border_color:
   type: string
-  default: "#000000"
+  default: "#ffffff"
   description: "Popover border color"
 
 popover_border_width:
@@ -39,19 +39,24 @@ popover_border_width:
   max: 10
   description: "Popover border width in pixels"
 
+link_color:
+  type: string
+  default: "#6b9fc8"
+  description: "Link color in popover text"
+
 button_background:
   type: string
-  default: "#000000"
+  default: "#ffffff"
   description: "Button background color"
 
 button_text_color:
   type: string
-  default: "#ffffff"
+  default: "#1a1a1a"
   description: "Button text color"
 
 button_hover_background:
   type: string
-  default: "#333333"
+  default: "#cccccc"
   description: "Button hover background color"
 
 overlay_color:
@@ -61,10 +66,10 @@ overlay_color:
 
 overlay_opacity:
   type: string
-  default: "0.75"
+  default: "0.85"
   description: "Overlay opacity (0 to 1)"
 
 highlight_border_color:
   type: string
-  default: "#000000"
+  default: "#ffffff"
   description: "Border color around highlighted element"

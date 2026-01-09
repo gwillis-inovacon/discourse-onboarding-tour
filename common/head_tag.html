@@ -14,7 +14,17 @@
     box-shadow: 8px 8px 0 {{settings.popover_border_color}} !important;
     max-width: 380px;
     padding: 0 !important;
-    font-family: system-ui, -apple-system, sans-serif;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  }
+
+  /* Links in popover */
+  .driver-popover a {
+    color: {{settings.link_color}} !important;
+    text-decoration: underline;
+  }
+
+  .driver-popover a:hover {
+    opacity: 0.8;
   }
 
   /* Arrow - sharp, no curves */
@@ -133,11 +143,14 @@
   .driver-popover-prev-btn {
     background-color: transparent !important;
     color: {{settings.popover_text_color}} !important;
+    border-color: {{settings.popover_text_color}} !important;
+    box-shadow: 3px 3px 0 {{settings.popover_text_color}} !important;
   }
 
   .driver-popover-prev-btn:hover {
-    background-color: {{settings.popover_border_color}} !important;
+    background-color: {{settings.popover_text_color}} !important;
     color: {{settings.popover_background}} !important;
+    box-shadow: 4px 4px 0 {{settings.popover_text_color}} !important;
   }
 
   /* Overlay */
