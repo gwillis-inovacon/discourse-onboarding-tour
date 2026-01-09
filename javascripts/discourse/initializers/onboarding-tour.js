@@ -55,6 +55,9 @@ function parseStepsConfig(jsonString, defaults) {
 }
 
 function findElement(selector) {
+  if (!selector || selector.trim() === "") {
+    return null;
+  }
   // Handle comma-separated selectors (try each one)
   const selectors = selector.split(",").map(s => s.trim());
   for (const sel of selectors) {
@@ -64,57 +67,89 @@ function findElement(selector) {
   return null;
 }
 
-function buildTourSteps(stepsConfig) {
+function buildTourSteps(stepsConfig, welcomeTitle, welcomeDesc, doneTitle, doneDesc) {
   const steps = [];
 
-  // Welcome step (no element)
-  steps.push({
-    popover: {
-      title: "Welcome!",
-      description: "Let us show you around. This quick tour will help you get started.",
-    },
-  });
+  // Welcome step (no element) - only if title or description provided
+  if (welcomeTitle || welcomeDesc) {
+    steps.push({
+      popover: {
+        title: welcomeTitle || "Welcome!",
+        description: welcomeDesc || "",
+      },
+    });
+  }
 
   // Build steps from config
   for (const step of stepsConfig) {
-    const element = findElement(step.selector);
-    if (element) {
+    // Check if this is a centered step (no selector)
+    const isCenteredStep = !step.selector || step.selector.trim() === "";
+
+    if (isCenteredStep) {
+      // Centered modal step (no element)
       steps.push({
-        element: element,
         popover: {
-          title: step.title || "Feature",
+          title: step.title || "",
           description: step.description || "",
-          side: step.side || "bottom",
-          align: step.align || "center",
         },
       });
     } else {
-      console.log(`[Onboarding Tour] Element not found for selector: ${step.selector}`);
+      // Element-targeted step
+      const element = findElement(step.selector);
+      if (element) {
+        steps.push({
+          element: element,
+          popover: {
+            title: step.title || "Feature",
+            description: step.description || "",
+            side: step.side || "bottom",
+            align: step.align || "center",
+          },
+        });
+      } else {
+        console.log(`[Onboarding Tour] Element not found for selector: ${step.selector}`);
+      }
     }
   }
 
-  // Done step (no element)
-  steps.push({
-    popover: {
-      title: "You're All Set!",
-      description: "That's the basics. Explore and enjoy!",
-    },
-  });
+  // Done step (no element) - only if title or description provided
+  if (doneTitle || doneDesc) {
+    steps.push({
+      popover: {
+        title: doneTitle || "Done!",
+        description: doneDesc || "",
+      },
+    });
+  }
 
   return steps;
 }
 
-function startTour(stepsConfig, isLoggedIn) {
+function startTour(stepsConfig, isLoggedIn, themeSettings) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
 
-  const steps = buildTourSteps(stepsConfig);
+  // Get welcome/done text based on user type
+  const welcomeTitle = isLoggedIn
+    ? themeSettings.welcome_title_logged_in
+    : themeSettings.welcome_title_anonymous;
+  const welcomeDesc = isLoggedIn
+    ? themeSettings.welcome_description_logged_in
+    : themeSettings.welcome_description_anonymous;
+  const doneTitle = isLoggedIn
+    ? themeSettings.done_title_logged_in
+    : themeSettings.done_title_anonymous;
+  const doneDesc = isLoggedIn
+    ? themeSettings.done_description_logged_in
+    : themeSettings.done_description_anonymous;
+
+  const steps = buildTourSteps(stepsConfig, welcomeTitle, welcomeDesc, doneTitle, doneDesc);
   console.log("[Onboarding Tour] Starting tour with steps:", steps);
 
-  if (steps.length <= 2) {
-    console.log("[Onboarding Tour] No valid steps found, skipping tour");
+  if (steps.length === 0) {
+    console.log("[Onboarding Tour] No steps found, skipping tour");
     return;
   }
 
@@ -184,6 +219,14 @@ function getThemeSettings() {
     target_trust_level: settings.target_trust_level ?? 4,
     tour_steps_anonymous: settings.tour_steps_anonymous || "[]",
     tour_steps_logged_in: settings.tour_steps_logged_in || "[]",
+    welcome_title_anonymous: settings.welcome_title_anonymous || "Welcome!",
+    welcome_description_anonymous: settings.welcome_description_anonymous || "Let us show you around.",
+    done_title_anonymous: settings.done_title_anonymous || "You're All Set!",
+    done_description_anonymous: settings.done_description_anonymous || "Create an account to join!",
+    welcome_title_logged_in: settings.welcome_title_logged_in || "Welcome!",
+    welcome_description_logged_in: settings.welcome_description_logged_in || "Let us show you around.",
+    done_title_logged_in: settings.done_title_logged_in || "You're All Set!",
+    done_description_logged_in: settings.done_description_logged_in || "Explore and enjoy!",
   };
 }
 
@@ -223,7 +266,7 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour(stepsConfig, isLoggedIn);
+          startTour(stepsConfig, isLoggedIn, themeSettings);
         }, themeSettings.tour_delay_ms);
       });
     });
