@@ -55,24 +55,27 @@ function getStorageKey(isLoggedIn) {
   return isLoggedIn ? STORAGE_KEY_LOGGED_IN : STORAGE_KEY_ANON;
 }
 
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+  return match ? match[2] : null;
+}
+
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+}
+
 function hasCompletedTour(isLoggedIn) {
-  try {
-    const key = getStorageKey(isLoggedIn);
-    const value = localStorage.getItem(key);
-    console.log(`[Onboarding Tour] Checking completion: key=${key}, value=${value}, isCompleted=${value === "true"}`);
-    return value === "true";
-  } catch (e) {
-    console.log("[Onboarding Tour] localStorage error:", e);
-    return false;
-  }
+  const key = getStorageKey(isLoggedIn);
+  const value = getCookie(key);
+  console.log(`[Onboarding Tour] Checking completion: key=${key}, value=${value}, isCompleted=${value === "true"}`);
+  return value === "true";
 }
 
 function markTourCompleted(isLoggedIn) {
-  try {
-    localStorage.setItem(getStorageKey(isLoggedIn), "true");
-  } catch (e) {
-    // localStorage not available
-  }
+  const key = getStorageKey(isLoggedIn);
+  setCookie(key, "true", 365); // Expires in 1 year
+  console.log(`[Onboarding Tour] Marked tour completed: ${key}`);
 }
 
 function parseStepsConfig(jsonString, defaults) {
