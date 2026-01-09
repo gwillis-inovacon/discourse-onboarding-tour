@@ -1,6 +1,8 @@
 import { withPluginApi } from "discourse/lib/plugin-api";
+import { settings } from "discourse/lib/theme-settings-store";
 
 const STORAGE_KEY = "discourse_onboarding_tour_completed";
+const THEME_ID = parseInt(document.currentScript?.dataset?.themeId || "0", 10);
 
 function getI18n(key) {
   if (typeof I18n !== "undefined" && I18n.t) {
@@ -207,14 +209,16 @@ function startTour() {
   driverObj.drive();
 }
 
-function shouldShowTour(api, settings) {
+function shouldShowTour(api, themeSettings) {
   // Check if tour is enabled
-  if (!settings.tour_enabled) {
+  if (!themeSettings.tour_enabled) {
+    console.log("[Onboarding Tour] Tour is disabled in settings");
     return false;
   }
 
   // Check if already completed
   if (hasCompletedTour()) {
+    console.log("[Onboarding Tour] Tour already completed (localStorage)");
     return false;
   }
 
@@ -222,7 +226,9 @@ function shouldShowTour(api, settings) {
   const currentUser = api.getCurrentUser();
   if (currentUser) {
     const trustLevel = currentUser.trust_level || 0;
-    if (trustLevel > settings.target_trust_level) {
+    console.log("[Onboarding Tour] User trust level:", trustLevel, "Max allowed:", themeSettings.target_trust_level);
+    if (trustLevel > themeSettings.target_trust_level) {
+      console.log("[Onboarding Tour] Trust level too high, skipping");
       return false;
     }
   }
@@ -259,43 +265,60 @@ function addReplayButton(api) {
   });
 }
 
+function getThemeSettings() {
+  // Access theme component settings
+  const themeSettings = settings.get(THEME_ID) || {};
+  return {
+    tour_enabled: themeSettings.tour_enabled !== false,
+    tour_delay_ms: themeSettings.tour_delay_ms || 1500,
+    target_trust_level: themeSettings.target_trust_level ?? 0,
+    show_replay_button: themeSettings.show_replay_button || false,
+  };
+}
+
 export default {
   name: "onboarding-tour",
 
-  initialize(container) {
-    const siteSettings = container.lookup("service:site-settings");
-
+  initialize() {
     withPluginApi("1.0", (api) => {
       let tourTriggered = false;
+      const themeSettings = getThemeSettings();
+
+      console.log("[Onboarding Tour] Initializing with settings:", themeSettings);
 
       // Add replay button if enabled
-      if (siteSettings.show_replay_button) {
+      if (themeSettings.show_replay_button) {
         addReplayButton(api);
       }
 
       api.onPageChange((url) => {
+        console.log("[Onboarding Tour] Page change detected:", url);
+
         // Only trigger once per session
         if (tourTriggered) {
+          console.log("[Onboarding Tour] Already triggered this session");
           return;
         }
 
         // Only on homepage
         if (!isHomePage(url)) {
+          console.log("[Onboarding Tour] Not on homepage");
           return;
         }
 
         // Check all conditions
-        if (!shouldShowTour(api, siteSettings)) {
+        if (!shouldShowTour(api, themeSettings)) {
+          console.log("[Onboarding Tour] Conditions not met");
           return;
         }
 
         tourTriggered = true;
+        console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         // Delay to ensure DOM is ready
-        const delay = siteSettings.tour_delay_ms || 1500;
         setTimeout(() => {
           startTour();
-        }, delay);
+        }, themeSettings.tour_delay_ms);
       });
     });
   },
