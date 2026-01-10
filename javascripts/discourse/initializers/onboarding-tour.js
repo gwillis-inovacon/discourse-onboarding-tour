@@ -106,6 +106,19 @@ function findElement(selector) {
   return null;
 }
 
+function isMobileDevice() {
+  return window.innerWidth < 768;
+}
+
+function shouldShowStep(step) {
+  const device = step.device || "all";
+  if (device === "all") return true;
+  const isMobile = isMobileDevice();
+  if (device === "mobile" && isMobile) return true;
+  if (device === "desktop" && !isMobile) return true;
+  return false;
+}
+
 function buildTourSteps(stepsConfig, themeSettings) {
   const steps = [];
 
@@ -119,6 +132,12 @@ function buildTourSteps(stepsConfig, themeSettings) {
 
   // Build steps from config
   for (const step of stepsConfig) {
+    // Skip steps that shouldn't show on current device
+    if (!shouldShowStep(step)) {
+      console.log(`[Onboarding Tour] Skipping step (device: ${step.device}, current: ${isMobileDevice() ? 'mobile' : 'desktop'})`);
+      continue;
+    }
+
     const isCenteredStep = !step.selector || step.selector.trim() === "";
 
     // Get localized title and description from step config
