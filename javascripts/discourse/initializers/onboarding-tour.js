@@ -207,6 +207,32 @@ function startTour(stepsConfig, isLoggedIn, themeSettings) {
     const isLastStep = index === stepConfigs.length - 1;
     const isFirstStep = index === 0;
 
+    // Add progress indicator to title
+    const progress = `(${index + 1}/${stepConfigs.length}) `;
+    if (step.popover && step.popover.title) {
+      step.popover.title = progress + step.popover.title;
+    }
+
+    // Add navigation buttons and callbacks directly to the step popover
+    step.popover.showButtons = isFirstStep ? ["next", "close"] : ["next", "previous", "close"];
+    step.popover.nextBtnText = isLastStep ? t("done_button") : t("next_button");
+    step.popover.prevBtnText = t("prev_button");
+    step.popover.onNextClick = () => {
+      if (isLastStep) {
+        markTourCompleted(isLoggedIn);
+        driverObj.destroy();
+      } else {
+        driverObj.destroy();
+        showStep(index + 1);
+      }
+    };
+    step.popover.onPrevClick = () => {
+      if (!isFirstStep) {
+        driverObj.destroy();
+        showStep(index - 1);
+      }
+    };
+
     driverObj = window.driver.js.driver({
       showProgress: false,
       animate: false,
@@ -215,40 +241,11 @@ function startTour(stepsConfig, isLoggedIn, themeSettings) {
       stagePadding: 0,
       stageRadius: 0,
       popoverOffset: 16,
-      showButtons: ["next", "previous", "close"],
-      nextBtnText: isLastStep ? t("done_button") : t("next_button"),
-      prevBtnText: t("prev_button"),
-      onNextClick: () => {
-        if (isLastStep) {
-          markTourCompleted(isLoggedIn);
-          driverObj.destroy();
-        } else {
-          driverObj.destroy();
-          showStep(index + 1);
-        }
-      },
-      onPrevClick: () => {
-        if (!isFirstStep) {
-          driverObj.destroy();
-          showStep(index - 1);
-        }
-      },
       onDestroyStarted: () => {
         markTourCompleted(isLoggedIn);
         driverObj.destroy();
       },
     });
-
-    // Add progress indicator to title
-    const progress = `(${index + 1}/${stepConfigs.length}) `;
-    if (step.popover && step.popover.title) {
-      step.popover.title = progress + step.popover.title;
-    }
-
-    // Hide prev button on first step
-    if (isFirstStep) {
-      driverObj.setConfig({ showButtons: ["next", "close"] });
-    }
 
     driverObj.highlight(step);
   }
