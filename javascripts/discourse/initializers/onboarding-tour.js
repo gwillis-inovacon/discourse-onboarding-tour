@@ -119,6 +119,40 @@ function shouldShowStep(step) {
   return false;
 }
 
+function openMobileSidebar() {
+  // Try various sidebar toggle selectors used by Discourse
+  const toggleSelectors = [
+    ".header-sidebar-toggle button",
+    ".header-sidebar-toggle",
+    "#toggle-hamburger-menu",
+    ".hamburger-dropdown",
+    "[data-toggle='sidebar']"
+  ];
+
+  for (const selector of toggleSelectors) {
+    const toggle = document.querySelector(selector);
+    if (toggle) {
+      // Check if sidebar is already open
+      const sidebar = document.querySelector(".sidebar-wrapper.sidebar-visible, .sidebar-container.visible, .d-sidebar");
+      if (sidebar && sidebar.offsetParent !== null) {
+        console.log("[Onboarding Tour] Sidebar already open");
+        return true;
+      }
+
+      console.log("[Onboarding Tour] Opening sidebar via:", selector);
+      toggle.click();
+      return true;
+    }
+  }
+
+  console.log("[Onboarding Tour] Could not find sidebar toggle");
+  return false;
+}
+
+function needsSidebarOpen(stepsConfig) {
+  return stepsConfig.some(step => step.openSidebar && shouldShowStep(step));
+}
+
 function buildTourSteps(stepsConfig, themeSettings) {
   const steps = [];
 
@@ -188,6 +222,23 @@ function startTour(stepsConfig, isLoggedIn, themeSettings) {
     return;
   }
 
+  // Check if we need to open sidebar first (for mobile steps with openSidebar flag)
+  const needsSidebar = needsSidebarOpen(stepsConfig);
+
+  if (needsSidebar) {
+    console.log("[Onboarding Tour] Opening sidebar for tour steps...");
+    openMobileSidebar();
+
+    // Wait for sidebar to open and render, then start tour
+    setTimeout(() => {
+      launchTourDriver(stepsConfig, isLoggedIn, themeSettings);
+    }, 500);
+  } else {
+    launchTourDriver(stepsConfig, isLoggedIn, themeSettings);
+  }
+}
+
+function launchTourDriver(stepsConfig, isLoggedIn, themeSettings) {
   const steps = buildTourSteps(stepsConfig, themeSettings);
   console.log("[Onboarding Tour] Starting tour with steps:", steps);
 
