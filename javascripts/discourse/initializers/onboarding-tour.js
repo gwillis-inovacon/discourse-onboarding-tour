@@ -149,123 +149,179 @@ function openMobileSidebar() {
   return false;
 }
 
-function needsSidebarOpen(stepsConfig) {
-  return stepsConfig.some(step => step.openSidebar && shouldShowStep(step));
-}
-
-function buildTourSteps(stepsConfig, themeSettings) {
-  const steps = [];
-
-  // Welcome step (no element) - use settings or fallback to translation
-  steps.push({
-    popover: {
-      title: themeSettings.welcome_title || t("welcome_title"),
-      description: themeSettings.welcome_description || t("welcome_description"),
-    },
-  });
-
-  // Build steps from config
-  for (const step of stepsConfig) {
-    // Skip steps that shouldn't show on current device
-    if (!shouldShowStep(step)) {
-      console.log(`[Onboarding Tour] Skipping step (device: ${step.device}, current: ${isMobileDevice() ? 'mobile' : 'desktop'})`);
-      continue;
-    }
-
-    const isCenteredStep = !step.selector || step.selector.trim() === "";
-
-    // Get localized title and description from step config
-    const title = getLocalizedText(step.title);
-    const description = getLocalizedText(step.description);
-
-    if (isCenteredStep) {
-      // Centered modal step (no element)
-      steps.push({
-        popover: {
-          title: title,
-          description: description,
-        },
-      });
-    } else {
-      // Element-targeted step
-      const element = findElement(step.selector);
-      if (element) {
-        steps.push({
-          element: element,
-          popover: {
-            title: title,
-            description: description,
-            side: step.side || "bottom",
-            align: step.align || "center",
-          },
-        });
-      } else {
-        console.log(`[Onboarding Tour] Element not found: ${step.selector}`);
-      }
-    }
-  }
-
-  // Done step (no element) - use settings or fallback to translation
-  steps.push({
-    popover: {
-      title: themeSettings.done_title || t("done_title"),
-      description: themeSettings.done_description || t("done_description"),
-    },
-  });
-
-  return steps;
-}
-
 function startTour(stepsConfig, isLoggedIn, themeSettings) {
   if (typeof window.driver === "undefined") {
     console.warn("[Onboarding Tour] Driver.js not loaded");
     return;
   }
 
-  // Check if we need to open sidebar first (for mobile steps with openSidebar flag)
-  const needsSidebar = needsSidebarOpen(stepsConfig);
+  // Build step configs with sidebar info preserved
+  const stepConfigs = buildTourStepConfigs(stepsConfig, themeSettings);
+  console.log("[Onboarding Tour] Starting tour with step configs:", stepConfigs);
 
-  if (needsSidebar) {
-    console.log("[Onboarding Tour] Opening sidebar for tour steps...");
-    openMobileSidebar();
-
-    // Wait for sidebar to open and render, then start tour
-    setTimeout(() => {
-      launchTourDriver(stepsConfig, isLoggedIn, themeSettings);
-    }, 500);
-  } else {
-    launchTourDriver(stepsConfig, isLoggedIn, themeSettings);
-  }
-}
-
-function launchTourDriver(stepsConfig, isLoggedIn, themeSettings) {
-  const steps = buildTourSteps(stepsConfig, themeSettings);
-  console.log("[Onboarding Tour] Starting tour with steps:", steps);
-
-  if (steps.length === 0) {
+  if (stepConfigs.length === 0) {
     console.log("[Onboarding Tour] No steps found, skipping tour");
     return;
   }
 
-  const driverObj = window.driver.js.driver({
-    showProgress: true,
-    animate: false,
-    allowClose: true,
-    overlayClickBehavior: "close",
-    stagePadding: 0,
-    stageRadius: 0,
-    popoverOffset: 16,
-    nextBtnText: t("next_button"),
-    prevBtnText: t("prev_button"),
-    doneBtnText: t("done_button"),
-    onDestroyStarted: () => {
-      markTourCompleted(isLoggedIn);
+  let currentStepIndex = 0;
+  let driverObj = null;
+
+  function showStep(index) {
+    if (index < 0 || index >= stepConfigs.length) return;
+
+    const config = stepConfigs[index];
+    currentStepIndex = index;
+
+    // Check if this step needs to open sidebar first
+    if (config.openSidebar) {
+      console.log("[Onboarding Tour] Opening sidebar for step", index);
+      openMobileSidebar();
+
+      // Wait for sidebar to render, then find element and show step
+      setTimeout(() => {
+        displayStep(config, index);
+      }, 500);
+    } else {
+      displayStep(config, index);
+    }
+  }
+
+  function displayStep(config, index) {
+    // Build the actual Driver.js step
+    const step = buildDriverStep(config);
+    if (!step) {
+      // Skip to next step if element not found
+      console.log("[Onboarding Tour] Skipping step - element not found");
+      if (index < stepConfigs.length - 1) {
+        showStep(index + 1);
+      }
+      return;
+    }
+
+    // Destroy previous driver instance if exists
+    if (driverObj) {
       driverObj.destroy();
-    },
-    steps: steps,
+    }
+
+    const isLastStep = index === stepConfigs.length - 1;
+    const isFirstStep = index === 0;
+
+    driverObj = window.driver.js.driver({
+      showProgress: false,
+      animate: false,
+      allowClose: true,
+      overlayClickBehavior: "close",
+      stagePadding: 0,
+      stageRadius: 0,
+      popoverOffset: 16,
+      showButtons: ["next", "previous", "close"],
+      nextBtnText: isLastStep ? t("done_button") : t("next_button"),
+      prevBtnText: t("prev_button"),
+      onNextClick: () => {
+        if (isLastStep) {
+          markTourCompleted(isLoggedIn);
+          driverObj.destroy();
+        } else {
+          driverObj.destroy();
+          showStep(index + 1);
+        }
+      },
+      onPrevClick: () => {
+        if (!isFirstStep) {
+          driverObj.destroy();
+          showStep(index - 1);
+        }
+      },
+      onDestroyStarted: () => {
+        markTourCompleted(isLoggedIn);
+        driverObj.destroy();
+      },
+    });
+
+    // Add progress indicator to title
+    const progress = `(${index + 1}/${stepConfigs.length}) `;
+    if (step.popover && step.popover.title) {
+      step.popover.title = progress + step.popover.title;
+    }
+
+    // Hide prev button on first step
+    if (isFirstStep) {
+      driverObj.setConfig({ showButtons: ["next", "close"] });
+    }
+
+    driverObj.highlight(step);
+  }
+
+  function buildDriverStep(config) {
+    if (config.isCentered) {
+      return {
+        popover: {
+          title: config.title,
+          description: config.description,
+        },
+      };
+    } else {
+      const element = findElement(config.selector);
+      if (!element) {
+        console.log(`[Onboarding Tour] Element not found: ${config.selector}`);
+        return null;
+      }
+      return {
+        element: element,
+        popover: {
+          title: config.title,
+          description: config.description,
+          side: config.side || "bottom",
+          align: config.align || "center",
+        },
+      };
+    }
+  }
+
+  // Start with first step
+  showStep(0);
+}
+
+function buildTourStepConfigs(stepsConfig, themeSettings) {
+  const configs = [];
+
+  // Welcome step
+  configs.push({
+    isCentered: true,
+    title: themeSettings.welcome_title || t("welcome_title"),
+    description: themeSettings.welcome_description || t("welcome_description"),
+    openSidebar: false,
   });
 
-  driverObj.drive();
+  // Build step configs from user config
+  for (const step of stepsConfig) {
+    if (!shouldShowStep(step)) {
+      continue;
+    }
+
+    const isCentered = !step.selector || step.selector.trim() === "";
+
+    configs.push({
+      isCentered: isCentered,
+      selector: step.selector,
+      title: getLocalizedText(step.title),
+      description: getLocalizedText(step.description),
+      side: step.side,
+      align: step.align,
+      openSidebar: step.openSidebar || false,
+    });
+  }
+
+  // Done step
+  configs.push({
+    isCentered: true,
+    title: themeSettings.done_title || t("done_title"),
+    description: themeSettings.done_description || t("done_description"),
+    openSidebar: false,
+  });
+
+  return configs;
 }
 
 function shouldShowTour(api, themeSettings, isLoggedIn) {
