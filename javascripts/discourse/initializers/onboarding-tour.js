@@ -232,6 +232,10 @@ function startTour(stepsConfig, isLoggedIn, themeSettings) {
         showStep(index - 1);
       }
     };
+    step.popover.onCloseClick = () => {
+      markTourCompleted(isLoggedIn);
+      driverObj.destroy();
+    };
 
     driverObj = window.driver.js.driver({
       showProgress: false,
