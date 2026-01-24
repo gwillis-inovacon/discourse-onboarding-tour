@@ -407,7 +407,23 @@ export default {
         console.log("[Onboarding Tour] Starting tour in", themeSettings.tour_delay_ms, "ms");
 
         setTimeout(() => {
-          startTour(stepsConfig, isLoggedIn, themeSettings);
+          // Check if yoDEV modal is present - wait for it to close first
+          const modal = document.getElementById('yodev-workplace-modal');
+          if (modal) {
+            console.log("[Onboarding Tour] Modal detected, waiting for it to close...");
+            const observer = new MutationObserver((mutations, obs) => {
+              if (!document.getElementById('yodev-workplace-modal')) {
+                console.log("[Onboarding Tour] Modal closed, starting tour");
+                obs.disconnect();
+                setTimeout(() => {
+                  startTour(stepsConfig, isLoggedIn, themeSettings);
+                }, 500);
+              }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+          } else {
+            startTour(stepsConfig, isLoggedIn, themeSettings);
+          }
         }, themeSettings.tour_delay_ms);
       });
     });
