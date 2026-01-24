@@ -147,18 +147,25 @@
   }
 
   /* Overlay - lighter so site stays visible */
+  /* z-index set lower than modal (99999) so tour runs behind it */
   .driver-overlay {
     background-color: #000000 !important;
     opacity: 0.5 !important;
+    z-index: 90000 !important;
+  }
+
+  .driver-popover {
+    z-index: 90001 !important;
+  }
+
+  #driver-highlighted-element-stage {
+    z-index: 90000 !important;
+    border-radius: 0 !important;
   }
 
   /* Highlighted element */
   .driver-active-element {
     outline: 3px solid #f28621 !important;
     outline-offset: 4px;
-  }
-
-  #driver-highlighted-element-stage {
-    border-radius: 0 !important;
   }
 </style>
